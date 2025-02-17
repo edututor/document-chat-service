@@ -15,10 +15,6 @@ class Settings(BaseSettings):
     db_url: str
     pinecone_api_key: str
     pinecone_environment: str
-    aws_access_key: str
-    aws_secret_key: str
-    bucket_name: str
-
 
     def __init__(self, **data):
         super().__init__(**data)
