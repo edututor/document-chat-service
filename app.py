@@ -1,10 +1,11 @@
 from loguru import logger
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Query, Depends
+from gtts import gTTS
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from agents import document_chat_agent
 from openai_client import OpenAiClient
-from schemas import ChatGPTResponse
+from schemas import ChatGPTResponse, TextToSpeechRequest
 from vector_manager import VectorManager
 from pinecone import Pinecone
 from config import settings
@@ -70,6 +71,26 @@ def generate_analysis(document_name: str = Query(...), query: str = Query(...)):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred while processing the request.")
+
+
+@app.post("/api/text-to-speech")
+async def text_to_speech(request: TextToSpeechRequest):
+    """
+    Converts input text into speech and returns an MP3 file.
+    """
+    try:
+        # Generate speech from text
+        tts = gTTS(text=request.text, lang=request.language, slow=False)
+
+        # Save the generated speech to a temporary file
+        file_path = "output.mp3"
+        tts.save(file_path)
+
+        # Return the audio file as a response
+        return FileResponse(file_path, media_type="audio/mpeg", filename="speech.mp3")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating speech: {str(e)}")
 
 
 if __name__ == "__main__":
