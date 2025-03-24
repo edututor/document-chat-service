@@ -7,3 +7,7 @@ class ChatGPTResponse(BaseModel):
 class TextToSpeechRequest(BaseModel):
     text: str
     language: str = "en"
+
+class DocumentChatRequest(BaseModel):
+    document_name: str
+    query: str
