@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     db_url: str
     pinecone_api_key: str
     pinecone_environment: str
+    quiz_service_url: str
 
     def __init__(self, **data):
         super().__init__(**data)
