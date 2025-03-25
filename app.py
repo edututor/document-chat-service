@@ -7,6 +7,7 @@ from openai_client import OpenAiClient
 from schemas import TextToSpeechRequest, DocumentChatRequest
 from functions.document_chat_function import DocumentChat
 from functions.generate_quiz_function import QuizGenerator
+from functions.tutoring_function import TutoringRouter
 import os
 
 
@@ -53,6 +54,24 @@ def handle_chat(request: DocumentChatRequest):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred while processing the request.")
+
+@app.post("/api/tutoring")
+def handle_tutoring(request: DocumentChatRequest):
+    document_name = request.document_name
+    user_query = request.query
+
+    try:
+        tutoring_router = TutoringRouter()
+        final_response = tutoring_router.route_subject(user_query, document_name)
+
+        return JSONResponse(
+            status_code=200,
+            content={"final_response": final_response},
+        )
+
+    except Exception as e:
+        logger.error(f"Error in tutoring pipeline: {e}")
+        raise HTTPException(status_code=500, detail="Internal error in tutoring service.")
 
 
 @app.post("/api/text-to-speech")
