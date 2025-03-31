@@ -8,6 +8,7 @@ from schemas import TextToSpeechRequest, DocumentChatRequest
 from functions.document_chat_function import DocumentChat
 from functions.generate_quiz_function import QuizGenerator
 import os
+from typing import List
 
 
 app = FastAPI()
@@ -57,22 +58,31 @@ def handle_chat(request: DocumentChatRequest):
 
 @app.post("/api/text-to-speech")
 async def text_to_speech(request: TextToSpeechRequest):
+    return tts_pipeline(chat_history=request.chat_history, language=request.language)
+
+
+
+def tts_pipeline(chat_history: List[dict], language: str = "en") -> FileResponse:
     """
-    Converts input text into speech and returns an MP3 file.
+    Pipeline to process chat history and return speech audio.
+    Looks for the last assistant or user message and converts it to speech.
     """
-    try:
-        # Generate speech from text
-        tts = gTTS(text=request.text, lang=request.language, slow=False)
+    # Step 1: Find the last message that can be converted
+    for message in reversed(chat_history):
+        if message["role"] in ["user", "assistant"] and message["content"].strip():
+            text_to_convert = message["content"]
+            break
+    else:
+        raise HTTPException(status_code=400, detail="No valid message found for TTS conversion.")
 
-        # Save the generated speech to a temporary file
-        file_path = "output.mp3"
-        tts.save(file_path)
+    # Step 2: Generate speech
+    tts = gTTS(text=text_to_convert, lang=language, slow=False)
+    file_path = "speech_output.mp3"
+    tts.save(file_path)
 
-        # Return the audio file as a response
-        return FileResponse(file_path, media_type="audio/mpeg", filename="speech.mp3")
+    # Step 3: Return the file
+    return FileResponse(file_path, media_type="audio/mpeg", filename="speech.mp3")
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating speech: {str(e)}")
 
 
 if __name__ == "__main__":
