@@ -13,7 +13,6 @@ class Agent:
 
         return [{"role": "system", "content": system_prompt}, {"role": "user", "content": input_prompt}]
 
-
 # Quiz generator agent:
 document_chat_agent = Agent(
     name="Document Chat Agent",

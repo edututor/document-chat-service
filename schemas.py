@@ -12,3 +12,7 @@ class TextToSpeechRequest(BaseModel):
 
 class ChatGPTResponse(BaseModel):
     answer: str
+
+class DocumentChatRequest(BaseModel):
+    document_name: str
+    query: str

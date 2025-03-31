@@ -1,3 +1,4 @@
 .env
 tester_dummy.py
-.venv
+venv
+__pycache__
