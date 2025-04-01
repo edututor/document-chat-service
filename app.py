@@ -45,6 +45,15 @@ def handle_chat(request: DocumentChatRequest):
 
             return quiz_generator.generate_quiz(document_name, query)
 
+        elif function_to_call["function_name"] == "tutoring":
+            logger.info(f"Routing tutoring request for query: {query}")
+            tutoring_router = TutoringRouter()
+            final_response = tutoring_router.route_subject(query, document_name)
+            return JSONResponse(
+                status_code=200,
+                content={"final_response": final_response},
+            )
+
         else:
             return JSONResponse(
                 status_code=400,
@@ -54,25 +63,6 @@ def handle_chat(request: DocumentChatRequest):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred while processing the request.")
-
-@app.post("/api/tutoring")
-def handle_tutoring(request: DocumentChatRequest):
-    document_name = request.document_name
-    user_query = request.query
-
-    try:
-        tutoring_router = TutoringRouter()
-        final_response = tutoring_router.route_subject(user_query, document_name)
-
-        return JSONResponse(
-            status_code=200,
-            content={"final_response": final_response},
-        )
-
-    except Exception as e:
-        logger.error(f"Error in tutoring pipeline: {e}")
-        raise HTTPException(status_code=500, detail="Internal error in tutoring service.")
-
 
 @app.post("/api/text-to-speech")
 async def text_to_speech(request: TextToSpeechRequest):
