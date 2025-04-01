@@ -24,10 +24,11 @@ class OpenAiClient:
                     {
                         "role": "system",
                         "content": (
-                            "You are a routing agent. Your ONLY job is to decide whether "
-                            "the user needs the 'doc_qa' function or the 'generate_quiz' "
-                            "function. Then provide the correct arguments. DO NOT return any text "
-                            "outside of the function call. Always follow the function schema exactly."
+                            "You are a routing agent. Your ONLY job is to decide which of the following functions to call:\n"
+                            "- 'doc_qa' → if the user is asking a question about the document content\n"
+                            "- 'generate_quiz' → if the user wants to create quiz questions from a topic or content\n"
+                            "- 'if the user is asking to be taught or wants help understanding a concept (even if not in the document)\n\n"
+                            "Then provide the correct arguments. Call only one function. DO NOT return any text outside of the function call."
                         )
                     },
                     {
@@ -35,7 +36,7 @@ class OpenAiClient:
                         "content": f"Selected document: {document_name}\nUser query: {user_query}"
                     }
                 ],
-                functions=[answer_doc_function, generate_quiz_function],
+                functions=[answer_doc_function, generate_quiz_function, tutoring_function],
                 function_call="auto"
             )
             
